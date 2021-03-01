@@ -1,0 +1,82 @@
+
+const DRINKS_INDEX = api.index.build_v1(project.DRINKS_DATA, {
+    name:       api.index.str(3, 2),
+    size:       api.index.str(3, 2),
+    pcat:       api.index.str(3, 2),   
+    pcat1:      api.index.str(3, 2),
+    pcat2:      api.index.str(3, 2),
+    region:     api.index.str(3, 2),
+    country:    api.index.str(3, 2),
+    price:      api.index.num(),
+    popularity: api.index.num()
+});
+
+async function searchDrinks(q, maxResults) {
+    let condition = [];
+    let rank = [];
+    let qry = {};
+    let popularity = true;
+    if (q.type) {
+        if (q.type == 'wine' || q.type == 'beer' || q.type == 'liquor') {
+            qry.pcat = {text: q.type, match: 'p > 0.9 || s > 0.6'};
+            rank.push('pcat * 10');
+            condition.push('pcat');
+        } else {
+            qry.pcat1 = {text: q.type, match: 'p > 0.9 || s > 0.6'};
+            qry.pcat2 = {text: q.type, match: 'p > 0.9 || s > 0.6'};
+            rank.push('max(pcat1, pcat2) * 10');
+            condition.push('(pcat1 || pcat2)');
+        }
+    }
+    if (q.name) {
+        if (q.name == 'wine' || q.name == 'beer' || q.type == 'liquor') {
+            qry.pcat = {text: q.name, match: '(p > 0.85 && s > 0.3) || (p > 0.8 && s > 0.3)'};
+            rank.push('pcat * 100')
+            condition.push('pcat');
+        } else {
+            qry.name = {text: q.name, match: 'p > 0.85 && s > 0.1 || p > 0.6 && s > 0.4'};
+            rank.push('name * 1000');
+            condition.push('name'); 
+            popularity = false;
+        }
+    }
+    if (q.origin) {
+        qry.region  = {text: q.origin};
+        qry.country = {text: q.origin};
+        rank.push('max(region, country)');
+        condition.push('(region || country)');
+    }
+    if (q.price) {
+        if (q.price.equal != null) {
+            qry.price = {match: `${q.price.equal * 0.8} < v && v < ${q.price.equal * 1.2}`,
+                         rank:  `abs(v - ${q.price.equal})`};
+            rank.push('price / 10');
+        } else if (q.price.from != null && q.price.to != null) {
+            qry.price = {match: `${q.price.from * 0.9} < v && v < ${q.price.to * 1.1}`,
+                         rank:  `min(abs(v - ${q.price.from}), abs(v - ${q.price.to}))`};
+            rank.push('price / 100');
+        } else if (q.price.from != null) {
+            qry.price = {match: `${q.price.from * 0.9} < v`,
+                         rank:  `abs(v - ${q.price.from})`}; 
+            rank.push('price / 100');
+        } else if (q.price.to != null) {
+            qry.price = {match: `v < ${q.price.to * 1.1}`,
+                         rank:  `abs(v -  ${q.price.to}) / 10`};
+            rank.push('price / 100');
+        }
+        condition.push('price');
+    }
+    if (popularity) {
+        qry.popularity = {};
+        rank.push('popularity / 2');
+    }
+    condition = condition.join(' && ');
+    rank = rank.join(' + ');
+    let options = {condition, rank};
+    let {result, recommend} = await DRINKS_INDEX.search(qry, options);
+    return {result, recommend};
+}
+
+
+project.searchDrinks = searchDrinks
+

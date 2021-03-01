@@ -1,0 +1,236 @@
+
+const FIND_DRINK = [
+    `(Do you have|find|show|I'm looking for|I'd like to buy|I want|recommend|) (me|) (a bottle of|) (some|any|something|the most popular|) $(~ p:ORIGIN)`, 
+    `(Do you have|find|show|I'm looking for|I'd like to buy|I want|recommend|) (me|) (a bottle of|) (some|any|the most popular|) $(~ p:ORIGIN|) $(~ p:DRINK_QUERY) (wine|beer|)`, 
+    `(Do you have|find|show|I'm looking for|I'd like to buy|I want|recommend|) (me|) (a bottle of|) (some|any|something|the most popular|) $(~ p:DRINK_QUERY|) (wine|beer|) from $(~ p:ORIGIN)`, 
+    `(What) (is the most popular|) $(~ p:ORIGIN|) $(~ p:DRINK_QUERY) (wine|beer|) (do you have|)`, 
+    `(What) (is the most popular|) $(~ p:ORIGIN) (wine|beer|) (do you have)`, 
+    `(What) (is the most popular|) $(~ p:DRINK_QUERY) (wine|beer|) from $(~ p:ORIGIN) (do you have)`,
+];
+
+const FIND_DRINK_PRICE_UNDER = [
+    `(Do you have|find|show|I'm looking for|I'd like to buy|I want|recommend) (me|) (a bottle of|) (something|the most popular|) $(~ p:ORIGIN) $(~ p:DRINK_QUERY|) (wine|beer|) (under|below|for less than|on the|on their) $(PRICE_LOWER NUMBER) (dollars|)`, 
+    `(Do you have|find|show|I'm looking for|I'd like to buy|I want|recommend) (me|) (a bottle of|) (something|the most popular|) $(~ p:ORIGIN|) $(~ p:DRINK_QUERY) (wine|beer|) (under|below|for less than|on the|on their) $(PRICE_LOWER NUMBER) (dollars|)`,     
+    `(Do you have|find|show|I'm looking for|I'd like to buy|I want|recommend) (me|) (a bottle of|) (something|the most popular|) $(~ p:DRINK_QUERY|) (wine|beer|) from $(~ p:ORIGIN) (under|below|for less than|on the|on their) $(PRICE_LOWER NUMBER) (dollars|)`, 
+    `(What) $(~ p:ORIGIN|) $(~ p:DRINK_QUERY) (wine|) (do you have) (a bottle of|) (under|below|for less than|on the|on their) $(PRICE_LOWER NUMBER) (dollars|)`, 
+    `(What) $(~ p:DRINK_QUERY|) (wine|beer|) from $(~ p:ORIGIN) (do you have) (under|below|for less than|on the|on their) $(PRICE_LOWER NUMBER) (dollars|)`,     
+    `(What) $(~ p:ORIGIN) $(~ p:DRINK_QUERY|) (wine|) (under|below|for less than|on the|on their) $(PRICE_LOWER NUMBER) (dollars|) (do you have)`, 
+    `(What) $(~ p:ORIGIN|) $(~ p:DRINK_QUERY) (wine|) (under|below|for less than|on the|on their) $(PRICE_LOWER NUMBER) (dollars|) (do you have)`,     
+    `(What) $(~ p:DRINK_QUERY|) (wine|) from $(~ p:ORIGIN) (under|below|for less than|on the|on their) $(PRICE_LOWER NUMBER) (dollars|) (do you have)`,     
+];
+
+const FIND_DRINK_PRICE_OVER = [
+    `(Do you have|find|show|I'm looking for|I'd like to buy|I want|recommend) (me|) (a bottle of|) $(~ p:ORIGIN|) $(~ p:DRINK_QUERY) (wine|) (over|starting from|from|above) $(PRICE_HIGHER NUMBER) (dollars|)`, 
+    `(Do you have|find|show|I'm looking for|I'd like to buy|I want|recommend) (me|) (a bottle of|) $(~ p:DRINK_QUERY|) (wine|) from $(~ p:ORIGIN) (over|starting from|from|above) $(PRICE_HIGHER NUMBER) (dollars|)`, 
+    `(What) $(~ p:ORIGIN|) $(~ p:DRINK_QUERY) (wine|) (do you have) (over|starting from|from|above) $(PRICE_HIGHER NUMBER) (dollars|)`, 
+    `(What) $(~ p:DRINK_QUERY|) (wine|) from $(~ p:ORIGIN) (do you have) (over|for more then|starting from|from|above) $(PRICE_HIGHER NUMBER) (dollars|)`,
+];
+
+const FIND_DRINK_PRICE_RANGE = [
+    `(Do you have|find|show|I'm looking for|I'd like to buy|I want|recommend|) (me|) (a bottle of|) $(~ p:ORIGIN|) $(~ p:DRINK_QUERY) (wine|) (from|) $(PRICE_HIGHER NUMBER) (dollars|) to $(PRICE_LOWER NUMBER) (dollars|)`, 
+    `(Do you have|find|show|I'm looking for|I'd like to buy|I want|recommend|) (me|) (a bottle of|) $(~ p:DRINK_QUERY) (wine|) from $(~ p:ORIGIN) (from|) $(PRICE_HIGHER NUMBER) (dollars|) to $(PRICE_LOWER NUMBER) (dollars|)`,  
+    `(What) $(~ p:ORIGIN|) $(~ p:DRINK_QUERY) (wine|) (do you have) (from|) $(PRICE_HIGHER NUMBER) (dollars|) to $(PRICE_LOWER NUMBER) (dollars|)`, 
+    `(What) $(~ p:DRINK_QUERY) (wine|) from $(~ p:ORIGIN) (do you have) (from|) $(PRICE_HIGHER NUMBER) (dollars|) to $(PRICE_LOWER NUMBER) (dollars|)`, 
+];
+
+const FIND_DRINK_PRICE_EQUAL = [
+    `(Do you have|find|show|I'm looking for|I'd like to buy|I want|recommend) (me|) (a bottle of|) $(~ p:ORIGIN|) $(p:DRINK_QUERY) (wine|) for $(PRICE_EQUAL NUMBER) (dollars|)`, 
+    `(Do you have|find|show|I'm looking for|I'd like to buy|I want|recommend) (me|) (a bottle of|) $(~ p:DRINK_QUERY) (wine|) from $(~ p:ORIGIN) for $(PRICE_EQUAL NUMBER) (dollars|)`,  
+    `(What) $(~ p:ORIGIN|) $(~ p:DRINK_QUERY|) (wine|) (do you have) (over|for more then|starting from) for $(PRICE_EQUAL NUMBER)`, 
+    `(What) $(~ p:DRINK_QUERY|) (wine|) from $(~ p:ORIGIN) (do you have) for $(PRICE_EQUAL NUMBER)`, 
+    `(find|show|I'm looking for|I'd like to buy|I want|recommend) (me|) (a bottle of|) (some|any|something|) (wine|beer|) for (around|) $(PRICE_EQUAL NUMBER) (dollars|)`,
+];
+
+
+const FIND_DRINK_NAME = [
+    `(Do you have|find|show|I would like|I'm looking for|I'm looking for|I'd like to buy|I want|recommend) (me|some|any|most popular|) (a bottle of|) $(~ p:ORIGIN|) $(WINE_NAME* .+)`,
+    `(Do you have|find|show|I would like|I'm looking for|I'm looking for|I'd like to buy|I want|recommend) (me|some|any|most popular|) (a bottle of|) $(~ p:ORIGIN|) $(WINE_NAME* .+) for $(PRICE_EQUAL NUMBER) (dollars|)`,
+    `(Do you have|find|show|I would like|I'm looking for|I'm looking for|I'd like to buy|I want|recommend) (me|some|any|most popular|) (a bottle of|) $(~ p:ORIGIN|) $(WINE_NAME* .+) (under|for less than) $(PRICE_LOWER NUMBER) (dollars|)`, 
+    
+];
+
+recognitionHints(`(what|find|find me|show|show me|do you have|some|any|have|for|buy|want|of|popular|) (${project.getDrinkQueries()})`,
+                 `(under|from|to|for) $(NUMBER)`,
+                 `from $(NUMBER) to $(NUMBER)`);
+
+onCreateProject(p=> {	
+	project.DRINK_QUERY = project.getDrinkQueriesWithLabels();
+    project.ORIGIN      = project.getOrigins();    
+});
+
+
+const FIND_INTENTS = [...FIND_DRINK, 
+                      ...FIND_DRINK_PRICE_UNDER, 
+                      ...FIND_DRINK_PRICE_OVER, 
+                      ...FIND_DRINK_PRICE_RANGE, 
+                      ...FIND_DRINK_PRICE_EQUAL,
+                      ...FIND_DRINK_NAME,
+                     ];
+
+function fixDrinkType(w) {
+    let wType = w.label && w.label !== 'name' ? w.label : w.value;
+    return wType;
+}
+
+
+let fixOrigin = project.fixOrigin;
+
+intent(FIND_INTENTS, async p=>  {
+    let query = {command: `query`};
+    if (p.DRINK_QUERY) {
+        if (p.DRINK_QUERY.label) {
+            if (p.DRINK_QUERY.label === 'name') {
+                query.name = p.DRINK_QUERY.value;
+            } else {
+                query.type = p.DRINK_QUERY.label;
+            }
+        } else {
+            query.type = p.DRINK_QUERY.value;
+        }       
+    }
+    if (p.WINE_NAME) {
+        query.name = p.WINE_NAME.value;
+    }
+    query.price = null;
+	if (p.PRICE_HIGHER && p.PRICE_LOWER) {
+        query.price = {from: p.PRICE_HIGHER.number, to: p.PRICE_LOWER.number};
+	} else if (p.PRICE_HIGHER) {
+        query.price = {from: p.PRICE_HIGHER.number};
+    } else if (p.PRICE_LOWER) {
+        query.price = {to: p.PRICE_LOWER.number};
+    } else if (p.PRICE_EQUAL) {
+        query.price = {equal: p.PRICE_EQUAL.number};
+    }
+    if (p.ORIGIN && p.ORIGIN.value) {
+        query.origin = fixOrigin(p.ORIGIN.value);
+    }
+    let {result, recommend} = await project.searchDrinks(query); 
+    result = result.slice(0, 100);
+    query.exactMatch = result.length == 1;
+    let rIds = _.map(result, (w)=>w.id);
+    let cIds = _.map(recommend, (w)=>w.id);
+    if (rIds.length) {
+        query.ids = rIds;
+    } else {
+        query.ids = cIds;
+    }    
+    p.play(query);
+    playResults(p, result, recommend);
+});
+
+
+function playResults(p, result, recommend) {
+    let n = ``;
+    if (result.length == 0) {
+        n += `(sorry|unfortunately) (we don't have|we could't find)`;
+    } else if (result.length == 1) {
+        n += `(okay|) we (found|have) one (item of|)`;
+    } else if (result.length < 10) {
+        n += `we (found|have) (a few|several) (options|items) of`;
+    } else {
+        n += `here you (go|are).`
+    }
+    if (p.DRINK_QUERY) {
+        n += ` ${fixDrinkType(p.DRINK_QUERY)}`;
+    }
+    if ((p.WINE_NAME && p.WINE_NAME.value) && !result.length) {
+        n+= ` (such|this) product`;
+    }
+    if (p.ORIGIN && p.ORIGIN.value) {
+        n += ` from ${fixOrigin(p.ORIGIN)}`
+    }
+    if (p.PRICE_EQUAL) {
+        n += ` for ${p.PRICE_EQUAL.number} dollars`;
+    }
+    if (p.PRICE_HIGHER && p.PRICE_LOWER) {
+        n += ` in (price|) range (from|) ${p.PRICE_HIGHER.number} to ${p.PRICE_LOWER.number} (dollars|)`;
+    } else if (p.PRICE_LOWER) {
+        n += ` (with price|) under ${p.PRICE_LOWER.number} (dollars|)`;
+    } else if (p.PRICE_HIGHER) {
+        n += ` (with price|) above ${p.PRICE_HIGHER.number} (dollars|)`;
+    }
+    let list = result.slice(0, 3);
+    let keys = [];
+    if (result.length) {
+        if (p.PRICE_HIGHER || p.PRICE_LOWER) {
+            keys.push('price');
+        }
+    }
+    if (!result.length && recommend.length) {
+        n += `, but we (would|can|) recommend`;
+        list = recommend.slice(0, 1);        
+    }
+    p.play(n);
+    playList(p, list, keys);
+    if (result.length.length > 3) {
+        p.play('and few more...');
+    }      
+}
+
+function playList(p, wines, keys=[]) {
+    let playPrice = p.PRICE_HIGHER || p.PRICE_LOWER || p.PRICE_EQUAL;
+    for (let w of wines) {
+        let read = keys.concat(w._missed);
+        let n = w.name.toLowerCase();
+        let origin = w.country || w.region;        
+        if (origin && (read.indexOf('country') >= 0 || read.indexOf('region') >= 0)) {
+            n += ` from ${fixOrigin(origin)}`;
+        }        
+        if (read.indexOf('price') >= 0 && w.price > 0) {
+            n += ` for ${w.price}`;
+        }
+        p.play({command: `highlight`, id: w.id});
+        p.play(n);
+    }
+}
+
+
+const WHAT_DRINKS = [
+    `what (kind|types|sort|) (of|) (drinks|beverages|) (do you have|do you sell|is there|can you offer)`,
+];
+
+intent(WHAT_DRINKS, p=> {
+    p.play(`we have ${project.DRINK_TYPES.join(', ')}`);
+});
+
+
+const WHAT_DRINK_TYPE = [
+    `(Do you have|find|show|I'm looking for|I'd like to buy|I want|recommend) (me|) (a bottle of|) (some|any|) $(W wine_~w|beer_~b)`,
+    `(what|show) (kind|types|sort|) (of|) $(W wine_~w|beer_~b) (do you have|do you sell|is there|can you offer) (in stock|)`,
+    `(what|show) (kind|types|sort|) (of|) $(W wine_~w|beer_~b) (do you have|do you sell|is there|can you offer) (in stock|)`,
+    `(is there|do you have) (some|any|) $(W wine_~w|beer_~b) (in stock|)`,
+];
+
+
+function arrayGetRotate(start, size, array) {
+    size = Math.min(size, array.length);
+    let result = [];
+    for (let i = 0; i < size; i++) {
+        result.push(array[(start + i) % array.length]);
+    }   
+    start = (start + result.length) % array.length; 
+    return {array, result, start};
+}
+
+const moreDrinks = context(()=> {
+    intent(`(tell me|what|show|I want|I want to see|keep going|more) (some|something|) (else|more|other|) (wine|beer|drinks|items|)`, p=> {
+        let {start, result, array} = arrayGetRotate(p.state.start, p.state.size, p.state.array);
+        p.play(`${result.join(', ')}`);
+        p.state.start = start;
+    });    
+});
+
+intent(WHAT_DRINK_TYPE, p=> {
+    if (p.W.label === 'b') {
+        let array = _.shuffle([...project.BEER_TYPES]);
+        let {start, result} = arrayGetRotate(0, 5, array);
+        p.play(`(we have|we can offer|we offer) ${result.join(', ')} and (many other|more)`);
+        p.then(moreDrinks, {state: {start, array, size: result.length}});        
+    } else if (p.W.label === 'w') {
+        let array = _.shuffle([...project.WINE_TYPES]);
+        let {start, result} = arrayGetRotate(0, 5, array);
+        p.play(`(we have|we can offer|we offer) ${result.join(', ')} and (many other|more)`);
+        p.then(moreDrinks, {state: {start, array, size: result.length}});
+    }
+});
+

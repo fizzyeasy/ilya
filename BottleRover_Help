@@ -1,0 +1,140 @@
+
+onUserEvent((p, e)=> {
+    let last = DateTime.fromMillis(e.userInfo.lastInteractionTs);
+    let now  = DateTime.local();
+    let diff = now.diff(last, 'days');
+    if (diff > 2) {
+        p.play(`(Hi|Hi there|Hello). this is BottleRover, Your smart assistant.`);
+        playHelp(p);
+    }
+});
+
+intent(
+    `Tell me about alcohol`,
+    `I want to know more about alcohol`,
+    `What is alcohol`,
+    reply(`An alcoholic drink is a drink that contains ethanol, a type of alcohol produced by fermentation of grains, fruits, or other sources of sugar. The consumption of alcohol plays an important social role in many cultures.`),
+);
+
+
+const HELP = [
+    `(How|) (Can|do) I (buy|find) (some|something|) (wine|drink|cool|)`,
+    `what (should I|am I supposed to) ask`,
+    `ask what`,
+    `help (me|)`,
+    `do you work`,
+    `how is work`,
+    `does it work`, 
+    `how (do|does|) (this|it|you) work`,
+    `how to use this`,
+    `how do I use it`,
+    `how (do I|to) (order|buy|find|search for|look for) (somethig|wine|beer|sake|drink)`,
+    `what can (I|you) do here`,
+    `what (should I|can I|to) (say|ask) (here|)`,
+    `what (commands|question) (are available|can you answer|can handle|can you do)`,
+];
+
+const HELP_FIND_EXAMPLES = [
+    `Argentinian wine`,
+    `Australian wine`,
+    `Chilean wine`,
+    `French wine`,
+    `German wine`,
+    `Bordeaux wine`,
+    `Alsatian wine`,
+    `Red Wine`,
+    `Champagne`,
+    `White wine`,
+    `Cabernet Sauvignon from Chile`,
+    `Chilean Cabernet Sauvignon`,
+    `Cabernet Sauvignon from Argentina`,
+    `Argentinan Cabernet Sauvignon`,
+    `Grenache from France`,
+    `French Grenache`,
+    `Grenache from Spain`,
+    `Spanish Grenache`,
+    `Argentinian Malbec`,
+    `Malbec from Argentina`,
+    `Merlot from Italy`,
+    `Italian Merlot`,
+    `Scotch`,
+    `Tequila`,
+    `Vodka`,
+    `Whiskey`,
+    `Bourbon`,
+    `IPA beer`,
+    `Lager beer`,
+    `Ales`,
+    `Imports beer`,
+    `Craft beer`,
+    `Domestic beer`,
+];
+
+
+function playHelp(p) {
+    let [s1, s2, s3, s4] = _.sampleSize(HELP_FIND_EXAMPLES, 4);
+    let help = [
+        `(you can say|just say|say). (find|show) ${s1}. or. (find|show) ${s2} under $40`,
+        `(you can ask|just ask|ask). (what) ${s3} do you have?`,
+    ];
+    p.play(...help);
+    
+}
+
+intent(HELP, playHelp);
+
+
+// //TODO: do we need this ?
+// 
+// const GENERIC_VINE_SEARCH = [
+//     `(do you have|find|show|) (me|) (some|any|) (wine|drink|soda|alchohol)`,
+//     `(I would like) (to|) (get|buy|order|) (some|any|something|) (drink|soda|alchohol)`,
+// ];
+// 
+// intent(GENERIC_VINE_SEARCH, p=> {
+//     p.play(`(sure.|) we have (differnt types|a lot|a collection) of wines.`);
+//     p.play(...HELP_REPLIES);
+// });
+
+
+intent(
+    `Must I be 21 Years Old to purchase?`,
+    `How old should i be?`,
+    `Is legal to buy alcohol when your under (21|18)?`,
+    `(do you have|Is there) (any|some) age (restriction_|limitation_|constraint_) (on buying|purchasing|) (alcohol|)?`,
+    reply(`You must be at least 21 years of age to order alcohol, and a signature of someone at least 21 years of age is required upon delivery.`),
+);
+
+intent(
+    `are you (f***|) (crazy|idiot|stup)`,
+    `what (the f**|) are you (saying|doing|)`,
+    reply(`I'm (just|) (trying to help|helping) you find (some|) drinks, If you need help just ask`)    
+);
+
+intent(
+    `can I pay online`,
+    `What (cards|payments|payment methods) do you accept?`,
+    `How (can|do|should) I pay?`,
+    `Do you (take|accept) (cash|credit card_|check_|visa_|master card|paypal|american express|discover|card_)`,
+    reply(
+        `We accept Visa, MasterCard, and other (electronic|online) payments`,
+    )
+);
+
+intent(
+    `(Do|can|may be|) you deliver`,
+    `(What|how|i want to know|i want to ask|tell me|) about delivery`,
+    p => {
+        p.play(`That?s what we do. Right to your door. If you have no door? That's Not a problem we?ll deliver through windows, down chimneys and up treehouses.`);
+    }
+);
+
+intent(
+    `(where|) (Can you deliver|do you deliver) (to|) (my home|my office|)`,
+    `(What|how|i want to know|i want to ask|tell me|) about delivery`,
+    `(Can you deliver|do you deliver) to $(LOC)`,
+    reply(
+        `We can delivery to any state.`,
+        `Delivery is possible for every state`
+    ),
+);

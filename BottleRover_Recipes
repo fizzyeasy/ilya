@@ -1,0 +1,80 @@
+
+//recipes 
+
+const COMPONENT_2_RECEPIE_IDS = {};
+
+for (let i = 0; i < project.recipes.length; i++) {
+    for (let j = 0; j < project.recipes[i].components.length; j++) {
+        let component = project.recipes[i].components[j];
+        let recepies = COMPONENT_2_RECEPIE_IDS[component] || [];
+        recepies.push(i);
+        COMPONENT_2_RECEPIE_IDS[component] = recepies;
+    }
+}
+
+const COMPONENTS = _.map(COMPONENT_2_RECEPIE_IDS, (v, k)=> k);
+
+project.COCKTAIL_COMPONENT = _.map(COMPONENTS, k=>`${k}~${k}`).join(`|`);
+
+project.COCKTAIL_TITLE = _.map(project.recipes, (p, i)=>`${p.title}~${i}`).join('|');
+
+
+const RECIPES_HELP = [
+    "I want to make c cocktail",
+    "can you make a cocktail",
+    "what cocktails can you make",
+    "what cocktail do you (know|have) (how to make|)",
+    "(can you|) help me (to|) (make|with) a cocktail",
+    "(tell me|do you know|) how to make a cocktail",
+    "(show|do you know) (any|some|) cocktail recipes",
+];
+
+intent(RECIPES_HELP, p=> {    
+    let recipe = _.sampleSize(project.recipes, 1)[0].title;
+    let component = _.sampleSize(COMPONENTS, 1)[0];
+    p.play(`Say: (how do I|how to) make ${recipe}, or how to make (something|a cocktail) with ${component}`);
+});
+
+const MAKE_COCKTAIL = [
+    `(how do I make|how to make|how to do|what's the recipes for|tell me the recipes for) $(~ p:COCKTAIL_TITLE) (cocktail|)`,
+    `(what are|read|give me) (instructions|recepty) (to make|for) $(~ p:COCKTAIL_TITLE) (cocktail |)`
+];
+
+intent(MAKE_COCKTAIL, p=> {
+    let r = project.recipes[p.COCKTAIL_TITLE.label];
+    p.play(`To make ${r.title}`);
+    p.play({command: 'recipes', ids: [r.id]});
+    p.play(`${r.instructions}`);
+    p.play(`(enjoy|that's all|have fun)`);
+    p.then(recipeContext, {state: {r}});
+});
+
+const COCKTAIL_WITH_COMPONENT = [
+    `(what cocktails|show cocktails) (with|containing|) $(~ p:COCKTAIL_COMPONENT) (do you know|can I make| are thre)`,
+    `what (cocktail|) (can I make|can I do) (with|containing|) $(~ p:COCKTAIL_COMPONENT)`,        
+    `(how to make|I want) (something|some cocktail|a cocktail) (with|containing|) $(~ p:COCKTAIL_COMPONENT)`,    
+];
+
+intent(COCKTAIL_WITH_COMPONENT, (p)=> {
+    let recipes = _.map(COMPONENT_2_RECEPIE_IDS[p.COCKTAIL_COMPONENT.label], id=> project.recipes[id]); 
+    let r = _.sampleSize(recipes, 1)[0];
+    p.play(`To make ${r.title} with ${p.COCKTAIL_COMPONENT.label}`);
+    p.play({command: 'recipes', ids: [r.id]});
+    p.play(`${r.instructions}`);
+    p.play(`(enjoy|that's all|have fun)`);
+    p.then(recipeContext, {state: {r}});
+});
+
+let recipeContext = context(()=> {
+    intent(`repeat (the recipe|that|) (please|)`, `(say|come|read|repeat) (that|) (again|one more time) (please|)`, p=> {
+        p.play(`(Sure.|no problem.|you got it.|) ${p.state.r.instructions}`);
+    });
+    intent(`repeat (the|) (components|ingredients)`,
+           `what (components|ingredients|) (do|will|) (I need|required) (for that|for this) (cocktail|)`,
+           `what are (the|required|) (components|ingredients|) (for that|for this) (cocktail|)`, 
+           p=> {
+        let ingredients = p.state.r.ingridients_list.join(`. - \n`);
+        p.play(`you will need (the following|). ${ingredients}`);
+    });
+});
+

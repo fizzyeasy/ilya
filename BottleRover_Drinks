@@ -1,0 +1,248 @@
+/*
+
+pcat----------
+['Beer' 'Liquor' 'Mixers & More' 'Wine']
+pcat1----------
+['Craft Beer' 'Domestic' 'Imports' 'Flavored Malt Beverage' ''
+ 'Pre-Mixed Cocktails' 'Whiskey' 'Cognac/Brandy' 'Gin' 'Bourbon Whiskey'
+ 'Vodka' 'Cordials/Liqueurs' 'Scotch' 'Rum' 'Tequila' 'Sake' 'Others'
+ 'Other' 'Mixers/Soda/Juices' 'Snacks' 'Bar Supplies' 'Water/Ice' 'Red'
+ 'White' 'Champagne & Sparkling' 'Dessert' 'Rose & Blush' 'Kegs']
+pcat2----------
+['' 'IPA' 'Ciders' 'Wheats & Shandys' 'Lagers' 'Fruit Beer' 'Hard Seltzer'
+ 'Others' 'Pale Ales' 'Ales' 'Stouts & Porters' 'Variety Pack'
+ 'Browns & Ambers' 'Sour' 'Bocks' 'Gluten-Free' 'Non-Alcoholic'
+ 'Cabernet Sauvignon' 'Other White' 'Other Wines' 'Fruit Wine'
+ 'Dessert Wines - Other' 'Red Blend' 'Zinfandel' 'Pinot Noir' 'Chardonnay'
+ 'Sparkling Rose' 'Sauvignon Blanc' 'Moscato' 'Pinot Gris/Pinot Grigio'
+ 'Other Red' 'Brut' 'Sparkling Blend' 'Sangiovese' 'Prosecco'
+ 'Syrah / Shiraz' 'Malbec' 'Merlot' 'Sake' 'Port' 'Nebbiolo' 'Riesling'
+ 'Rose' 'Grenache' 'Sweet White Dessert Wine' 'Bordeaux' 'Tempranillo'
+ 'Extra Dry' 'Sweet Red Dessert Wine' 'White Zinfandel' 'Marsala'
+ 'White Blend' 'Sparkling Red' 'Blanc de Blancs' 'Blanc de Noirs' 'Sherry'
+ 'Madeira' 'Mead' 'Demi Sec']
+names----------
+
+*/
+
+const CATEGORIES = [
+    ['Rose', 'Rose and Blush'],
+    ['Wheats~Wheats & Shandys', 'Shandys~Wheats & Shandys' ],
+    ['Brown'],
+    ['Amber' ],
+    ['Sour' ],
+    ['Bock' ],
+    ['Risotto' ], 
+    ['Gluten Free' ], 
+    ['Non-alcoholic' ],
+    ['Stouts & Porters', 'Stout~Stouts & Porters', 'Porter~Stouts & Porters' ],
+    ['Pale Ales', 'Ale'],
+    ['Hard Seltzer', 'Seltzer' ],
+    ['Fruit Beer' ],
+    ['Lager' ],
+    ['IPA', 'IPA Beer~IPA' ],
+    ['Cider' ],
+    ['Beer', 'Keg' ],
+    ['Cordial', 'Liqueur'],
+    ['Craft Beer', 'Craft~Craft Beer' ],
+    ['Scotch'],
+    ['Domestic', 'Domestic beer~Domestic' ],
+    ['Imports' ],
+    ['Flavored Malt Beverage' ],
+    ['Pre-Mixed Cocktails' ],
+    ['Bourbon~Bourbon Whiskey', 'Bourbon Whiskey' ],
+    ['Cognac~Cognac/Brandy', 'Brandy~Cognac/Brandy', 'Cognac or Brandy~Cognac/Brandy' ],
+    ['Vodka' ],
+    ['Gin' ],
+    ['Rum' ],   
+    ['Soda~Mixers/Soda/Juices', 'Mixer~Mixers/Soda/Juices', 'Juices~Mixers/Soda/Juices' ], 
+    ['Juice~Mixers/Soda/Juices' ],
+    ['Tequila' ],
+    ['Champagne'],
+    ['Snack' ],
+    ['Sparkling Blend', 'Sparkling'],
+    ['Sake'],
+    ['Bar Supplies' ],
+    ['Water~Water Ice', 'Water Ice~Water Ice', 'Iced Water~Water Ice'],
+    ['Cabernet Sauvignon', 'Cabernet', 'Cab~Cabernet'],
+    ['Red Blend', 'Red', 'Red wine', 'Blended Red'],
+    ['White', 'White', 'white wine'],
+	['White Blend'],
+    ['Dessert'],
+    ['Prosecco'],
+    ['Malbec'],
+	['Sauvignon Blanc', 'Sauvignon~Sauvignon Blanc'],
+	['Chardonnay'],
+	['Zinfandel'],
+	['Pinot Noir', 'Pinot'],
+	['Sangiovese'],
+	['Riesling'],
+	['Pinot Gris~Pinot Gris Pinot Grigio', 'Pinot Grigio~Pinot Gris Pinot Grigio'],
+	['Tempranillo'],
+	['Brut'],
+	['Port'],
+	['Madeira'],
+	['Moscato'],
+	['Extra Dry'],
+	['White Zinfandel', 'Zinfandel'],
+	['Sherry'],
+	['Merlot'],
+	['Demi Sec', 'Demi', 'DemiSec'],
+    ['Sweet Dessert'],
+	['Sweet Red Dessert', 'Sweet', 'Sweet Red', 'Dessert Red', 'Red Dessert'],
+	['Sweet White Dessert', 'Sweet', 'Sweet White', 'Dessert White', 'White Dessert'],
+    ['Dessert Wine' ],
+	['Grenache'],
+	['Bordeaux'],
+	['Nebbiolo'],
+	['Blanc de Noirs', 'Blanc', 'Blanc de Noir', 'Blanc Noir'],
+	['Mead'],
+	['Marsala'],
+	['Sparkling Red'],    
+    ['Blanc de Blancs'],
+    ['Syrah~Syrah Shiraz' ],
+    ['Shiraz~Syrah Shiraz' ],
+    ['Fruit Wine' ],    
+];
+
+
+const COMPLEX_NAMES = [
+    'ROSCATO',
+    'Glenlivet', 
+    'Apothic Red',
+    'TX Whiskey',
+    'Texan Whiskey',
+].map(n=> `${n}~NAME`);
+
+const DRINK_QUERY = CATEGORIES.concat(COMPLEX_NAMES);
+
+
+const ORIGINS = [
+   ['Italy', 'Italian', 'Sicilian'],
+   ['California', 'Californian'],
+   ['America', 'American'],
+   ['United States', 'U.S.', 'US', 'U.S.', 'USA', 'American'],
+   ['Japan', 'Japanise'],
+   ['France', 'French'],
+   ['Argentina', 'Argentinian'],
+   ['Germany', 'German'],
+   ['Australia', 'Australian'],
+   ['New Zealand', 'New Zealandian'], 
+   ['Spain', 'Spanish'],
+   ['Chile', 'Chilean'],
+   ['Portugal', 'portuguese'],
+   ['South Africa', 'South African'],
+   ['Napa Valley', 'Napa Valley'],    
+]
+
+
+const WINE_TYPES = [
+    'Rose',
+    'Champagne',
+    'Sparkling',
+    'Brut',
+    'Port',
+    'Madeira',
+    'Zinfandel',
+	'Extra Dry',
+	'Sherry',
+	'Merlot',
+	'Demi Sec', 
+    'Dessert Wine',
+	'Grenache',
+	'Bordeaux',
+	'Nebbiolo',
+	'Blanc de Noir',
+    'Blanc de Blancs',
+	'Mead',
+	'Marsala',
+    'Shiraz',
+    'Fruit Wine',   
+	'Sangiovese',
+	'Riesling',    
+    'Cabernet',
+    'Prosecco',
+];
+
+
+const BEER_TYPES = [
+//   'Brown',
+   'Amber',
+   'Sour',
+   'Bock',
+   'Stouts & Porters',
+   'Ale',
+   'Fruit Beer' ,
+   'Lager',
+   'IPA',
+   'Cider' ,
+   'Craft Beer',    
+   'Domestic',
+   'Imports',
+];
+
+const DRINK_TYPES = [
+    'Wine',
+    'Beer',
+    'Champagne',
+    'Vodka',
+    'Gin',
+    'Rum',    
+    'Soda',
+    'Mixers',
+    'Juices',
+];
+
+project.BEER_TYPES = BEER_TYPES;
+
+project.DRINK_TYPES = DRINK_TYPES;
+
+project.WINE_TYPES = WINE_TYPES;
+
+homophone('Sauvignon', 
+          'Simon Ian', 'seven Young', '7 Young', '7 Ian', 'some Ian', '7 Yuan', 'salmon Ian', 'seven Ian', 'seven Young', 'something young', 'young blonde', 'some young', 'minion');
+
+homophone('Sauvignon Blanc', 
+          'some Ian long', '7 Ian block', 'some young blonde', 'mignon Blanc', '7 Yuan longer', '7 Yuan Blanco');
+
+homophone('Glenlivet', 
+          'gluten lady')
+
+
+function toList(...args)  {
+    args = _.flattenDeep(args);
+    args = args.join('|').toLowerCase();
+    return args
+}
+
+project.getDrinkQueriesWithLabels = function() {
+    return toList(DRINK_QUERY);
+}
+
+project.getDrinkQueries = function() {
+    return project.getDrinkQueriesWithLabels().replace(/~[^|]*/g, ``);
+}
+
+project.getOrigin = function() {
+   return toList(_.map(ORIGINS, o=>o[1])); 
+}
+
+project.getOriginFrom = function() {
+   return toList(_.map(ORIGINS, o=>o[0]));
+}
+
+project.getOrigins = function() {
+   return toList(ORIGINS);
+}
+
+project.fixOrigin = function(origin) {
+    let ol = origin.toLowerCase();
+    for (let list of ORIGINS) {
+        for (let l of list) {
+            if (ol === l.toLowerCase()) {
+                return list[0];
+            }
+        }
+    }   
+    return origin;
+}
